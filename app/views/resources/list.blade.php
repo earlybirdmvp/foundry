@@ -42,4 +42,6 @@
 
 @endif
 
+{{ $resources->links() }}
+
 @stop

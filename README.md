@@ -28,7 +28,7 @@ Route::resource('product', 'ProductController');
 
 **That's all!**
 
-Now you simply need to go to the URL `product` and you will see a list of all Product objects. There is a button to create a new product, and columns with unique indexes link to edit the individual resource.
+Now you simply need to go to the URL `product` and you will see a paginated list of all Product objects. There is a button to create a new product, and columns with unique indexes link to edit the individual resource.
 
 ## Features
 
@@ -63,7 +63,6 @@ class Product extends Eloquent {
 ## Todo
 
 * package this better (as a bundle?)
-* paginate the index page
 * filters on the index page
 * support more data types
 * improve validation for dates

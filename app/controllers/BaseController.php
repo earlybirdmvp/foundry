@@ -116,7 +116,7 @@ class BaseController extends Controller
 	 */
 	public function index()
 	{
-		$resources = call_user_func([$this->model, 'all']);
+		$resources = call_user_func([$this->model, 'paginate'], 10);
 
 		// Try to determine relationships
 		foreach( $this->columns as $column )
