@@ -3,7 +3,7 @@ foundry
 
 Easily perform CRUD tasks on Eloquent models
 
-This is a replacement for Laravel's ResourceControllers, which are very lightweight.
+This is a replacement for Laravel's Resource Controllers, which are very lightweight.
 
 First add "doctrine/dbal" to your composer.json file and run `composer update`
 
@@ -34,7 +34,12 @@ Now you simply need to go to the URL `product` and you will see a paginated list
 
 * This is meant to be a CMS, not a DB admin tool. Therefore Eloquent `$hidden` and `$guarded` arrays are respected and not editable
 * If a column name has a comment, that is shown instead (can be used to create user-friendly labels)
-* Supported data types: strings, integers, booleans, dates
+* Supported data types:
+
+```
+bigint, boolean, date, decimal, integer, string
+```
+
 * Validation is built in. `NOT NULL` columns are considered "required", any column containing "email" inside its name must be a valid email address, and columns with unique indexes are checked
 * Validation errors are displayed next to the problematic column
 * Default validation rules can be overridden inside the Controller's constructor
@@ -69,6 +74,7 @@ class Product extends Eloquent {
     return $this->sku . ':  ' . $this->name;
   }
 }
+```
 
 ## Todo
 

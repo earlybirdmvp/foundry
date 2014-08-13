@@ -62,6 +62,7 @@ class FoundryController extends BaseController
 				'name'    => $raw->getName(),
 				'label'   => ( $raw->getComment() ? $raw->getComment() : NULL ),
 
+				'is_email' => ( $raw->getType()->getName() == 'string' && str_contains($raw->getName(), 'email') ),
 				'relationship' => str_replace('_id', '', $raw->getName()),
 
 				'type'     => $raw->getType()->getName(),
@@ -88,7 +89,7 @@ class FoundryController extends BaseController
 					$rules[] = 'required';
 				}
 				// If the column contains "email"
-				if( strstr($column['name'], 'email') )
+				if( $column['is_email'] )
 				{
 					$rules[] = 'email';
 				}
