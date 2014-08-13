@@ -7,10 +7,10 @@ This is a replacement for Laravel's Resource Controllers, which are very lightwe
 
 First add "doctrine/dbal" to your composer.json file and run `composer update`
 
-Next create your Eloquent model:
+Next create your Foundry model. Note: Foundry extends Eloquent but doesn't actually do anything yet. However, I imagine we may add some common code to this model in the future:
 
 ```php
-class Product extends Eloquent { }
+class Product extends Foundry { }
 ```
 
 Then create a Controller:
@@ -37,7 +37,7 @@ Now you simply need to go to the URL `product` and you will see a paginated list
 * Supported data types:
 
 ```
-bigint, boolean, date, decimal, integer, string
+bigint, boolean, date, decimal, integer, string, text
 ```
 
 * Validation is built in. `NOT NULL` columns are considered "required", any column containing "email" inside its name must be a valid email address, and columns with unique indexes are checked
@@ -56,7 +56,7 @@ class ProductController extends FoundryController {
 * Very basic `belongsTo` relationships are supported. The column must end in `_id` and must have the same prefix as the name of the relationship. For example, if the `products` table has a `category_id` column, and this Eloquent relationship then it will work:
 
 ```php
-class Product extends Eloquent {
+class Product extends Foundry {
   public function category() {
     return $this->belongsTo('Category');
   }
@@ -66,7 +66,7 @@ class Product extends Eloquent {
 * These `belongsTo` relationships are shown as select dropdowns where the value is the `id` and the option text is the `name` attribute. If the table does not have a `name` column, or you wish to change what is displayed, you can use `$appends`:
 
 ```php
-class Product extends Eloquent {
+class Product extends Foundry {
   protected $appends = array(
     'foundry_name',
   );
