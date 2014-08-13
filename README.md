@@ -48,6 +48,17 @@ class ProductController extends BaseController {
   }
 }
 ```
+* Very basic `belongsTo` relationships are supported. The column must end in `_id` and must have the same prefix as the name of the relationship. For example, if the `products` table has a `category_id` column, and this Eloquent relationship then it will work:
+
+```php
+class Product extends Eloquent {
+  public function category() {
+    return $this->belongsTo('Category');
+  }
+}
+``` 
+
+* These `belongsTo` relationships are then shown in the list as the `name` attribute, and when editing, a select dropdown is shown as id -> name pairs.
 
 ## Todo
 
@@ -56,5 +67,6 @@ class ProductController extends BaseController {
 * filters on the index page
 * support more data types
 * improve validation for dates
-* support relationships (e.g. select drop down for "belongsTo")
+* improve support for relationships
 * delete resources
+* bulk updates and deletes

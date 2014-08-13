@@ -49,8 +49,10 @@ class BaseController extends Controller
 		{
 			// Check if there is an index on this column
 			$matched_index = NULL;
-			foreach( $this->indexes as $index ) {
-				if( in_array($raw->getName(), $index['columns']) ) {
+			foreach( $this->indexes as $index )
+			{
+				if( in_array($raw->getName(), $index['columns']) )
+				{
 					$matched_index = $index;
 					break;
 				}
@@ -59,10 +61,13 @@ class BaseController extends Controller
 			$this->columns[] = [
 				'name'    => $raw->getName(),
 				'label'   => ( $raw->getComment() ? $raw->getComment() : NULL ),
-				'type'    => $raw->getType()->getName(),
-				'default' => $raw->getDefault(),
-				'length'  => $raw->getLength(),
-				'nullable' => $raw->getNotnull() ? false : true,
+
+				'relationship' => str_replace('_id', '', $raw->getName()),
+
+				'type'     => $raw->getType()->getName(),
+				'default'  => $raw->getDefault(),
+				'length'   => $raw->getLength(),
+				'required' => $raw->getNotnull() ? true : false,
 
 				'primary' => $matched_index['primary'],
 				'unique'  => $matched_index['unique'],
@@ -72,23 +77,28 @@ class BaseController extends Controller
 		// Generate default validator rules
 		foreach( $this->columns as $column )
 		{
-			if( ! $column['primary'] ) {
+			if( ! $column['primary'] )
+			{
 				$rules = array();
 
 				// If it's not nullable and not a boolean
 				// Booleans are checkboxes so they should never be "required"
-				if( ! $column['nullable'] && $column['type'] != 'boolean' ) {
+				if( $column['required'] && $column['type'] != 'boolean' )
+				{
 					$rules[] = 'required';
 				}
 				// If the column contains "email"
-				if( strstr($column['name'], 'email') ) {
+				if( strstr($column['name'], 'email') )
+				{
 					$rules[] = 'email';
 				}
-				if( $column['unique'] ) {
+				if( $column['unique'] )
+				{
 					$rules[] = 'unique:'.$this->table.','.$column['name'];
 				}
 
-				if( count($rules) > 0 ) {
+				if( count($rules) > 0 )
+				{
 					$this->rules[$column['name']] = $rules;
 				}
 			}
@@ -108,9 +118,24 @@ class BaseController extends Controller
 	{
 		$resources = call_user_func([$this->model, 'all']);
 
+		// Try to determine relationships
+		foreach( $this->columns as $column )
+		{
+			if( ends_with($column['name'], '_id') )
+			{
+				try
+				{
+					$resources->load($column['relationship']);
+					$relations[$column['name']] = true;
+				}
+				catch( Exception $e ) { }
+			}
+		}
+
 		return View::make('resources.list')
 			->with('resources', $resources)
 			->with('columns', $this->columns)
+			->with('relations', $relations)
 			->with('hidden_columns', with(new $this->model)->getHidden());
 	}
 
@@ -124,9 +149,44 @@ class BaseController extends Controller
 	{
 		$resource = call_user_func([$this->model, 'findOrFail'], $id);
 
+		$relations = array();
+
+		// Try to determine relationships
+		foreach( $this->columns as $column )
+		{
+			if( ends_with($column['name'], '_id') )
+			{
+				try
+				{
+					$resource->load($column['relationship']);
+					$relation = $resource->getRelation($column['relationship']);
+
+					// Load all options for this relationship
+					$class = get_class($relation);
+					$data = $class::all();
+					$options = array();
+
+					// Blank option if not required
+					if( ! $column['required'] ) {
+						$options[0] = '&ndash; Choose &ndash;';
+					}
+					foreach( $data as $datum ) {
+						$options[$datum->id] = $datum->name;
+					}
+
+					$relations[$column['name']] = [
+						'class' => $class,
+						'options' => $options
+					];
+				}
+				catch( Exception $e ) { }
+			}
+		}
+
 		return View::make('resources.edit')
 			->with('resource', $resource)
 			->with('columns', $this->columns)
+			->with('relations', $relations)
 			->with('hidden_columns', $resource->getHidden());
 	}
 
@@ -140,19 +200,24 @@ class BaseController extends Controller
 		$rules = $this->rules;
 
 		// Determine if editing or creating
-		if( $id ) {
+		if( $id )
+		{
 			$resource = call_user_func([$this->model, 'findOrFail'], $id);
 
-			foreach( $rules as $key => $ruleset ) {
-				for( $i=0; $i<count($ruleset); $i++ ) {
-					if( strstr($ruleset[$i], 'unique') ) {
+			foreach( $rules as $key => $ruleset )
+			{
+				for( $i=0; $i<count($ruleset); $i++ )
+				{
+					if( strstr($ruleset[$i], 'unique') )
+					{
 						$rules[$key][$i] .= ','.$id;
 					}
 				}
 				$rules[$key] = implode('|', $rules[$key]);
 			}
 		}
-		else {
+		else
+		{
 			$resource = new $this->model();
 		}
 
@@ -165,18 +230,22 @@ class BaseController extends Controller
 				->withErrors($validator)
 				->withInput();
 		}
-		else {
-			foreach( $this->columns as $column ) {
+		else
+		{
+			foreach( $this->columns as $column )
+			{
 
 				// Update columns. Only those which have input, and excluding hidden & primary key
 				if( Input::has($column['name']) &&
 					! in_array($column['name'], $resource->getHidden()) &&
-					! $column['primary'] ) {
+					! $column['primary'] )
+				{
 
 					$value = Input::get($column['name']);
 
 					// Additional formatting
-					if( $column['type'] == 'date' ) {
+					if( $column['type'] == 'date' )
+					{
 						$value = $value['year'].'-'.$value['month'].'-'.$value['day'];
 					}
 

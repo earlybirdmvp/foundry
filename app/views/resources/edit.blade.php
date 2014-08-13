@@ -23,7 +23,9 @@
 		$column['name'] == $resource->getUpdatedAtColumn() )
 		<span>{{{ $resource->$column['name'] }}}</span>
 	@else
-		@if ( $column['type'] == 'string' ||
+		@if ( $relations[$column['name']] )
+			{{ Form::select($column['name'], $relations[$column['name']]['options'], $resource->$column['name']) }}
+		@elseif ( $column['type'] == 'string' ||
 			$column['type'] == 'integer' || 
 			$column['type'] == 'bigint' )
 

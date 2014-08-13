@@ -24,6 +24,8 @@
 
 			@if ( $column['primary'] || $column['unique'] )
 				<td><a href="{{ URL::action($resource_class.'@edit', $resource->id) }}">{{ $resource->$column['name'] }}</a></td>
+			@elseif ( $relations[$column['name']] )
+				<td>{{{ $resource->$column['relationship']->name }}}</td>
 			@else
 				<td>{{{ $resource->$column['name'] }}}</td>
 			@endif
