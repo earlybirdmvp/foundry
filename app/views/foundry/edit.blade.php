@@ -27,6 +27,7 @@
 			{{ Form::select($column['name'], $relations[$column['name']]['options'], $resource->$column['name']) }}
 		@elseif ( $column['type'] == 'string' ||
 			$column['type'] == 'integer' || 
+			$column['type'] == 'decimal' ||
 			$column['type'] == 'bigint' )
 
 			{{ Form::text($column['name'], $resource->$column['name'], [
@@ -41,7 +42,7 @@
 
 		@elseif ( $column['type'] == 'boolean' )
 
-			{{ Form::checkbox($column['name']) }}
+			{{ Form::checkbox($column['name'], 1, $resource->$column['name']) }}
 
 		@else
 

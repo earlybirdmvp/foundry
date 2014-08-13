@@ -171,7 +171,18 @@ class FoundryController extends BaseController
 						$options[0] = '&ndash; Choose &ndash;';
 					}
 					foreach( $data as $datum ) {
-						$options[$datum->id] = $datum->name;
+						if( $datum->foundry_edit_value ) {
+							$options[$datum->id] = $datum->foundry_edit_value;
+						}
+						else if( $datum->foundry_value ) {
+							$options[$datum->id] = $datum->foundry_value;
+						}
+						else if( $datum->name ) {
+							$options[$datum->id] = $datum->name;
+						}
+						else {
+							$options[$datum->id] = $datum->id;
+						}
 					}
 
 					$relations[$column['name']] = [
@@ -236,20 +247,56 @@ class FoundryController extends BaseController
 			{
 
 				// Update columns. Only those which have input, and excluding hidden & primary key
-				if( Input::has($column['name']) &&
-					! in_array($column['name'], $resource->getHidden()) &&
+				if( ! in_array($column['name'], $resource->getHidden()) &&
+					! $resource->isGuarded($column['name']) &&
+			        $column['name'] != $resource->getCreatedAtColumn() &&
+			        $column['name'] != $resource->getUpdatedAtColumn() &&
 					! $column['primary'] )
 				{
 
-					$value = Input::get($column['name']);
-
-					// Additional formatting
-					if( $column['type'] == 'date' )
+					if( Input::has($column['name']) )
 					{
-						$value = $value['year'].'-'.$value['month'].'-'.$value['day'];
-					}
+						$value = Input::get($column['name']);
 
-					$resource->$column['name'] = $value;
+						// Additional formatting
+						if( $column['type'] == 'date' )
+						{
+							$value = $value['year'].'-'.$value['month'].'-'.$value['day'];
+						}
+
+						$resource->$column['name'] = $value;
+					}
+					// Data removed
+					else
+					{
+						switch( $column['type'] )
+						{
+							case 'integer':
+							case 'bigint':
+							case 'decimal':
+							case 'boolean':
+								$default = 0;
+								break;
+
+							case 'string':
+								$default = '';
+								break;
+
+							default:
+								$default = NULL;
+								break;
+						}
+
+						// If not required, and not a boolean, default is NULL
+						if( ! $column['required'] && 
+							$column['type'] != 'boolean' && 
+							$column['type'] != 'string' )
+						{
+							$default = NULL;
+						}
+
+						$resource->$column['name'] = $default;
+					}
 				}
 
 			}

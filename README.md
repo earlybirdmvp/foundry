@@ -58,7 +58,17 @@ class Product extends Eloquent {
 }
 ``` 
 
-* These `belongsTo` relationships are then shown in the list as the `name` attribute, and when editing, a select dropdown is shown as id -> name pairs.
+* These `belongsTo` relationships are shown as select dropdowns where the value is the `id` and the option text is the `name` attribute. If the table does not have a `name` column, or you wish to change what is displayed, you can use `$appends`:
+
+```php
+class Product extends Eloquent {
+  protected $appends = array(
+    'foundry_name',
+  );
+  public function getFoundryNameAttribute() {
+    return $this->sku . ':  ' . $this->name;
+  }
+}
 
 ## Todo
 

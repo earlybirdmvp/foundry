@@ -25,7 +25,17 @@
 			@if ( $column['primary'] || $column['unique'] )
 				<td><a href="{{ URL::action($resource_class.'@edit', $resource->id) }}">{{ $resource->$column['name'] }}</a></td>
 			@elseif ( $relations[$column['name']] )
-				<td>{{{ $resource->$column['relationship']->name }}}</td>
+				<td>
+				@if ( $resource->$column['relationship']->foundry_list_value )
+					{{{ $resource->$column['relationship']->foundry_list_value }}}
+				@elseif ( $resource->$column['relationship']->foundry_value )
+					{{{ $resource->$column['relationship']->foundry_value }}}
+				@elseif ( $resource->$column['relationship']->name )
+					{{{ $resource->$column['relationship']->name }}}
+				@else
+					{{{ $resource->$column['relationship']->id }}}
+				@endif
+				</td>
 			@else
 				<td>{{{ $resource->$column['name'] }}}</td>
 			@endif
