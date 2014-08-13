@@ -5,7 +5,9 @@ Easily perform CRUD tasks on Eloquent models
 
 This is a replacement for Laravel's ResourceControllers, which are very lightweight.
 
-First create your Eloquent model:
+First add "doctrine/dbal" to your composer.json file and run `composer update`
+
+Next create your Eloquent model:
 
 ```php
 class Product extends Eloquent { }
@@ -30,15 +32,19 @@ Now you simply need to go to the URL `product` and you will see a list of all Pr
 
 ## Features
 
-* Eloquent `$hidden` and `$guarded` arrays are respected
-* Validation is built in. `NOT NULL` columns are considered "required", any column containing "email" inside its name must be a valid email address, and columns with unique indexes are checked. These default validation rules can be overridden inside the Controller's constructor
+* This is meant to be a CMS, not a DB admin tool. Therefore Eloquent `$hidden` and `$guarded` arrays are respected and not editable
+* If a column name has a comment, that is shown instead (can be used to create user-friendly labels)
+* Supported data types: strings, integers, booleans, dates
+* Validation is built in. `NOT NULL` columns are considered "required", any column containing "email" inside its name must be a valid email address, and columns with unique indexes are checked
+* Validation errors are displayed next to the problematic column
+* Default validation rules can be overridden inside the Controller's constructor
 
 ```php
 class ProductController extends BaseController {
   public function __construct() {
     parent::__construct();
     $this->rules['name'][] = 'min:8'; // add rule
-    $this->rules['sku']    = 'required'; // replace rules
+    $this->rules['sku']    = ['required']; // replace rules
   }
 }
 ```
@@ -46,9 +52,9 @@ class ProductController extends BaseController {
 ## Todo
 
 * package this better (as a bundle?)
-* pagination on the index page
+* paginate the index page
 * filters on the index page
-* supporting more data types
-* supporting relationships (e.g. select drop down for "belongsTo")
-* display error messages
-* deleting resources
+* support more data types
+* improve validation for dates
+* support relationships (e.g. select drop down for "belongsTo")
+* delete resources

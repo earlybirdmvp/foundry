@@ -174,6 +174,12 @@ class BaseController extends Controller
 					! $column['primary'] ) {
 
 					$value = Input::get($column['name']);
+
+					// Additional formatting
+					if( $column['type'] == 'date' ) {
+						$value = $value['year'].'-'.$value['month'].'-'.$value['day'];
+					}
+
 					$resource->$column['name'] = $value;
 				}
 

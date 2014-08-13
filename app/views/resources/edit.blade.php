@@ -31,6 +31,12 @@
 				'maxlength' => $column['length']
 			]) }}
 
+		@elseif ( $column['type'] == 'date' )
+
+			{{ Form::text($column['name'].'[year]', substr($resource->$column['name'], 0, 4), ['maxlength' => 4]) }}
+			{{ Form::selectMonth($column['name'].'[month]', substr($resource->$column['name'], 5, 2)) }}
+			{{ Form::selectRange($column['name'].'[day]', 1, 31, substr($resource->$column['name'], 8, 2)) }}
+
 		@elseif ( $column['type'] == 'boolean' )
 
 			{{ Form::checkbox($column['name']) }}
@@ -41,6 +47,8 @@
 
 		@endif
 	@endif
+
+		{{ $errors->first($column['name'], '<span class="error">:message</div>') }}
 
 	</div>
 @endif
