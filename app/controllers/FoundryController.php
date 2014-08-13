@@ -1,6 +1,6 @@
 <?php
 
-class BaseController extends Controller
+class FoundryController extends BaseController
 {
 
 	protected $model;
@@ -132,7 +132,7 @@ class BaseController extends Controller
 			}
 		}
 
-		return View::make('resources.list')
+		return View::make('foundry.list')
 			->with('resources', $resources)
 			->with('columns', $this->columns)
 			->with('relations', $relations)
@@ -183,7 +183,7 @@ class BaseController extends Controller
 			}
 		}
 
-		return View::make('resources.edit')
+		return View::make('foundry.edit')
 			->with('resource', $resource)
 			->with('columns', $this->columns)
 			->with('relations', $relations)
@@ -269,23 +269,10 @@ class BaseController extends Controller
 	{
 		$resource = new $this->model();
 
-		return View::make('resources.edit')
+		return View::make('foundry.edit')
 			->with('resource', $resource)
 			->with('columns', $this->columns)
 			->with('hidden_columns', $resource->getHidden());
-	}
-
-	/**
-	 * Setup the layout used by the controller.
-	 *
-	 * @return void
-	 */
-	protected function setupLayout()
-	{
-		if ( ! is_null($this->layout))
-		{
-			$this->layout = View::make($this->layout);
-		}
 	}
 
 }

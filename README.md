@@ -16,7 +16,7 @@ class Product extends Eloquent { }
 Then create a Controller:
 
 ```php
-class ProductController extends BaseController { }
+class ProductController extends FoundryController { }
 ```
 
 Finally add a Route resource group. See http://laravel.com/docs/controllers#resource-controllers
@@ -40,7 +40,7 @@ Now you simply need to go to the URL `product` and you will see a paginated list
 * Default validation rules can be overridden inside the Controller's constructor
 
 ```php
-class ProductController extends BaseController {
+class ProductController extends FoundryController {
   public function __construct() {
     parent::__construct();
     $this->rules['name'][] = 'min:8'; // add rule
