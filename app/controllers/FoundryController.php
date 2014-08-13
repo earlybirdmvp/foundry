@@ -280,6 +280,7 @@ class FoundryController extends BaseController
 								break;
 
 							case 'string':
+							case 'text':
 								$default = '';
 								break;
 
@@ -288,10 +289,10 @@ class FoundryController extends BaseController
 								break;
 						}
 
-						// If not required, and not a boolean, default is NULL
-						if( ! $column['required'] && 
-							$column['type'] != 'boolean' && 
-							$column['type'] != 'string' )
+						$not_nullable = ['boolean', 'string', 'text'];
+
+						// If not required
+						if( ! $column['required'] && ! in_array($column['type'], $not_nullable) )
 						{
 							$default = NULL;
 						}

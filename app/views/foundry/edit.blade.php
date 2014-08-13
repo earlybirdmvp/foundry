@@ -24,12 +24,18 @@
 		<span>{{{ $resource->$column['name'] }}}</span>
 	@else
 		@if ( $relations[$column['name']] )
+
 			{{ Form::select($column['name'], $relations[$column['name']]['options'], $resource->$column['name']) }}
+
 		@elseif ( $column['is_email'] )
 
 			{{ Form::email($column['name'], $resource->$column['name'], [
 				'maxlength' => $column['length']
 			]) }}
+
+		@elseif ( $column['type'] == 'text' )
+
+			{{ Form::textarea($column['name'], $resource->$column['name']) }}
 
 		@elseif ( $column['type'] == 'string' ||
 			$column['type'] == 'integer' || 
