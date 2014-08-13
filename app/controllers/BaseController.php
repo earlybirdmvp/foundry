@@ -9,8 +9,7 @@ class BaseController extends Controller
 	protected $indexes = array();
 	protected $columns = array();
 
-	protected $create_rules = array();
-	protected $edit_rules = array();
+	protected $rules = array();
 
 	/**
 	 * Loads all database columns and indexes for this resource
@@ -74,31 +73,23 @@ class BaseController extends Controller
 		foreach( $this->columns as $column )
 		{
 			if( ! $column['primary'] ) {
-				$create_rules = $edit_rules = array();
+				$rules = array();
 
 				// If it's not nullable and not a boolean
 				// Booleans are checkboxes so they should never be "required"
 				if( ! $column['nullable'] && $column['type'] != 'boolean' ) {
-					$create_rules[] = 'required';
-					$edit_rules[] = 'required';
+					$rules[] = 'required';
 				}
-
 				// If the column contains "email"
 				if( strstr($column['name'], 'email') ) {
 					$rules[] = 'email';
-					$edit_rules[] = 'email';
 				}
-
-				// Unique is only used for creating
 				if( $column['unique'] ) {
-					$create_rules[] = 'unique:'.$this->table;
+					$rules[] = 'unique:'.$this->table.','.$column['name'];
 				}
 
-				if( count($create_rules) > 0 ) {
-					$this->create_rules[$column['name']] = implode('|', $create_rules);
-				}
-				if( count($edit_rules) > 0 ) {
-					$this->edit_rules[$column['name']] = implode('|', $edit_rules);
+				if( count($rules) > 0 ) {
+					$this->rules[$column['name']] = $rules;
 				}
 			}
 		}
@@ -146,17 +137,26 @@ class BaseController extends Controller
 	{
 		$id = Input::get('id');
 
+		$rules = $this->rules;
+
 		// Determine if editing or creating
 		if( $id ) {
 			$resource = call_user_func([$this->model, 'findOrFail'], $id);
-			$rules = $this->edit_rules;
+
+			foreach( $rules as $key => $ruleset ) {
+				for( $i=0; $i<count($ruleset); $i++ ) {
+					if( strstr($ruleset[$i], 'unique') ) {
+						$rules[$key][$i] .= ','.$id;
+					}
+				}
+				$rules[$key] = implode('|', $rules[$key]);
+			}
 		}
 		else {
 			$resource = new $this->model();
-			$rules = $this->create_rules;
 		}
 
-		// Run validator on create / edit rules
+		// Run validator on rules
 		$validator = Validator::make(Input::all(), $rules);
 
 		if( $validator->fails() )

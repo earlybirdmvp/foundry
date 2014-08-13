@@ -37,7 +37,8 @@ Now you simply need to go to the URL `product` and you will see a list of all Pr
 class ProductController extends BaseController {
   public function __construct() {
     parent::__construct();
-    $this->create_rules['name'] = 'min:8';
+    $this->rules['name'][] = 'min:8'; // add rule
+    $this->rules['sku']    = 'required'; // replace rules
   }
 }
 ```
@@ -49,4 +50,5 @@ class ProductController extends BaseController {
 * filters on the index page
 * supporting more data types
 * supporting relationships (e.g. select drop down for "belongsTo")
+* display error messages
 * deleting resources
