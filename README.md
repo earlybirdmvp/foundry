@@ -23,13 +23,13 @@ Finally, you can optionally copy and modify the SASS file.
 First create your Foundry model. (Foundry extends Eloquent) 
 
 ```php
-class Product extends \Earlybird\Foundry { }
+class Product extends Earlybird\Foundry { }
 ```
 
 Then create a Controller:
 
 ```php
-class ProductController extends \Earlybird\FoundryController { }
+class ProductController extends Earlybird\FoundryController { }
 ```
 
 Finally add a Route resource group. See http://laravel.com/docs/controllers#resource-controllers
@@ -60,7 +60,7 @@ bigint, boolean, date, decimal, integer, string, text
 * Default validation rules can be overridden inside the Model
 
 ```php
-class Product extends Foundry {
+class Product extends Earlybird\Foundry {
   protected $rules = array(
     'name' => 'min:8'
   );
@@ -71,7 +71,7 @@ class Product extends Foundry {
 * Very basic `belongsTo` relationships are supported. The column must end in `_id` and must have the same prefix as the name of the relationship. For example, if the `products` table has a `category_id` column, and this Eloquent relationship then it will work:
 
 ```php
-class Product extends Foundry {
+class Product extends Earlybird\Foundry {
   public function category() {
     return $this->belongsTo('Category');
   }
@@ -81,7 +81,7 @@ class Product extends Foundry {
 * These `belongsTo` relationships are shown as select dropdowns where the value is the `id` and the option text is the `name` attribute. If the table does not have a `name` column, or you wish to change what is displayed, you can use `$appends`:
 
 ```php
-class Product extends Foundry {
+class Product extends Earlybird\Foundry {
   protected $appends = array(
     'foundry_value',
   );
@@ -100,7 +100,6 @@ class Product extends Foundry {
 
 ## Todo
 
-* package this better (as a bundle?)
 * sort and filter the index page
 * support more data types
 * improve validation for dates

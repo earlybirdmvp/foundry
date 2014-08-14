@@ -104,7 +104,7 @@ class Foundry extends \Eloquent
 	{
 		if ($this->totallyGuarded())
 		{
-			throw new MassAssignmentException($key);
+			throw new \MassAssignmentException($key);
 		}
 
 		$columns = array_diff_key($this->getColumns(),

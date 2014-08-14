@@ -73,7 +73,7 @@ class FoundryController extends \BaseController
 					$resources->load($column->relationship);
 					$relations[$name] = true;
 				}
-				catch( Exception $e ) { }
+				catch( \Exception $e ) { }
 			}
 		}
 
@@ -136,7 +136,7 @@ class FoundryController extends \BaseController
 
 					$relations[$name] = $rel;
 				}
-				catch( Exception $e ) { }
+				catch( \Exception $e ) { }
 			}
 		}
 
