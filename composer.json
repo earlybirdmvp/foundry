@@ -5,9 +5,9 @@
 	"homepage": "https://github.com/earlybirdmvp/foundry",
 	"authors": [
 		{
-			"name": "Earlybird",
+			"name": "Andrew Weber",
 			"email": "andrew@earlybird.co",
-			"homepage": "http://eggs.earlybird.co"
+			"homepage": "http://andrewtweber.com"
 		}
 	],
 	"require": {
