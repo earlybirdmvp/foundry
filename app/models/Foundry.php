@@ -39,11 +39,12 @@ class Foundry extends Eloquent
 
 		foreach( $raw_indexes as $raw )
 		{
-			$this->indexes[$raw->getName()] = [
-				'columns' => $raw->getColumns(),
-				'primary' => $raw->isPrimary(),
-				'unique'  => $raw->isUnique(),
-			];
+			$idx = new stdClass();
+			$idx->columns = $raw->getColumns();
+			$idx->primary = $raw->isPrimary();
+			$idx->unique  = $raw->isUnique();
+
+			$this->indexes[$raw->getName()] = $idx;
 		}
 
 		return $this->indexes;
@@ -68,27 +69,27 @@ class Foundry extends Eloquent
 			$matched_index = NULL;
 			foreach( $this->getIndexes() as $index )
 			{
-				if( in_array($raw->getName(), $index['columns']) )
+				if( in_array($raw->getName(), $index->columns) )
 				{
 					$matched_index = $index;
 					break;
 				}
 			}
 
-			$this->columns[$raw->getName()] = [
-				'label'   => ( $raw->getComment() ? $raw->getComment() : NULL ),
+			$col = new stdClass();
+			$col->label    = ( $raw->getComment() ? $raw->getComment() : NULL );
+			$col->is_email = ( $raw->getType()->getName() == 'string' && str_contains($raw->getName(), 'email') );
+			$col->relationship = str_replace('_id', '', $raw->getName());
 
-				'is_email' => ( $raw->getType()->getName() == 'string' && str_contains($raw->getName(), 'email') ),
-				'relationship' => str_replace('_id', '', $raw->getName()),
+			$col->type     = $raw->getType()->getName();
+			$col->default  = $raw->getDefault();
+			$col->length   = $raw->getLength();
+			$col->required = $raw->getNotnull() ? true : false;
 
-				'type'     => $raw->getType()->getName(),
-				'default'  => $raw->getDefault(),
-				'length'   => $raw->getLength(),
-				'required' => $raw->getNotnull() ? true : false,
+			$col->primary = $matched_index->primary;
+			$col->unique  = $matched_index->unique;
 
-				'primary' => $matched_index['primary'],
-				'unique'  => $matched_index['unique'],
-			];
+			$this->columns[$raw->getName()] = $col;
 		}
 
 		return $this->columns;
@@ -134,22 +135,22 @@ class Foundry extends Eloquent
 		// Generate default validator rules
 		foreach( $this->getColumns() as $name => $column )
 		{
-			if( ! $column['primary'] )
+			if( ! $column->primary )
 			{
 				$rules = array();
 
 				// If it's not nullable and not a boolean
 				// Booleans are checkboxes so they should never be "required"
-				if( $column['required'] && $column['type'] != 'boolean' )
+				if( $column->required && $column->type != 'boolean' )
 				{
 					$rules[] = 'required';
 				}
 				// If the column contains "email"
-				if( $column['is_email'] )
+				if( $column->is_email )
 				{
 					$rules[] = 'email';
 				}
-				if( $column['unique'] )
+				if( $column->unique )
 				{
 					$rules[] = 'unique:'.$this->getTable().','.$name.( $this->id ? ','.$this->id : '' );
 				}

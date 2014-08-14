@@ -9,7 +9,7 @@
 <table class="resource-table" cellspacing="0" cellpadding="0" border="0" width="100%">
 <tr>
 @foreach ( $columns as $name => $column )
-	<th>{{{ $column['label'] or $name }}}</th>
+	<th>{{{ $column->label or $name }}}</th>
 @endforeach
 </tr>
 
@@ -19,18 +19,19 @@
 
 	@if ( $resource->$name !== NULL )
 
-		@if ( $column['primary'] || $column['unique'] )
+		@if ( $column->primary || $column->unique )
 			<td><a href="{{ URL::action($foundry_class.'@edit', $resource->id) }}">{{ $resource->$name }}</a></td>
 		@elseif ( $relations[$name] )
 			<td>
-			@if ( $resource->$column['relationship']->foundry_list_value )
-				{{{ $resource->$column['relationship']->foundry_list_value }}}
-			@elseif ( $resource->$column['relationship']->foundry_value )
-				{{{ $resource->$column['relationship']->foundry_value }}}
-			@elseif ( $resource->$column['relationship']->name )
-				{{{ $resource->$column['relationship']->name }}}
+			<?php $rel = $column->relationship; ?>
+			@if ( $resource->$rel->foundry_list_value )
+				{{{ $resource->$rel->foundry_list_value }}}
+			@elseif ( $resource->$rel->foundry_value )
+				{{{ $resource->$rel->foundry_value }}}
+			@elseif ( $resource->$rel->name )
+				{{{ $resource->$rel->name }}}
 			@else
-				{{{ $resource->$column['relationship']->id }}}
+				{{{ $resource->$rel->id }}}
 			@endif
 			</td>
 		@else

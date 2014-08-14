@@ -11,6 +11,13 @@ class FoundryController extends BaseController
 	protected $model;
 
 	/**
+	 * Number to show per page
+	 *
+	 * @var int
+	 */
+	protected $per_page = 10;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct()
@@ -52,7 +59,7 @@ class FoundryController extends BaseController
 	public function index()
 	{
 		$model = $this->getModel();
-		$resources = call_user_func([$this->getModel(), 'paginate'], 10);
+		$resources = call_user_func([$this->getModel(), 'paginate'], $this->per_page);
 		$columns = with(new $model)->getVisibleColumns();
 
 		// Try to determine relationships
@@ -63,7 +70,7 @@ class FoundryController extends BaseController
 			{
 				try
 				{
-					$resources->load($column['relationship']);
+					$resources->load($column->relationship);
 					$relations[$name] = true;
 				}
 				catch( Exception $e ) { }
@@ -95,8 +102,8 @@ class FoundryController extends BaseController
 			{
 				try
 				{
-					$resource->load($column['relationship']);
-					$relation = $resource->getRelation($column['relationship']);
+					$resource->load($column->relationship);
+					$relation = $resource->getRelation($column->relationship);
 
 					// Load all options for this relationship
 					$class = get_class($relation);
@@ -104,7 +111,7 @@ class FoundryController extends BaseController
 					$options = array();
 
 					// Blank option if not required
-					if( ! $column['required'] ) {
+					if( ! $column->required ) {
 						$options[0] = '&ndash; Choose &ndash;';
 					}
 					foreach( $data as $datum ) {
@@ -122,10 +129,11 @@ class FoundryController extends BaseController
 						}
 					}
 
-					$relations[$name] = [
-						'class' => $class,
-						'options' => $options
-					];
+					$rel = new stdClass();
+					$rel->class = $class;
+					$rel->options = $options;
+
+					$relations[$name] = $rel;
 				}
 				catch( Exception $e ) { }
 			}
@@ -172,7 +180,7 @@ class FoundryController extends BaseController
 					$value = Input::get($name);
 
 					// Additional formatting
-					if( $column['type'] == 'date' )
+					if( $column->type == 'date' )
 					{
 						$value = $value['year'].'-'.$value['month'].'-'.$value['day'];
 					}
@@ -182,7 +190,7 @@ class FoundryController extends BaseController
 				// Data removed
 				else
 				{
-					switch( $column['type'] )
+					switch( $column->type )
 					{
 						case 'integer':
 						case 'bigint':
@@ -204,7 +212,7 @@ class FoundryController extends BaseController
 					$not_nullable = ['boolean', 'string', 'text'];
 
 					// If not required
-					if( ! $column['required'] && ! in_array($column['type'], $not_nullable) )
+					if( ! $column->required && ! in_array($column->type, $not_nullable) )
 					{
 						$default = NULL;
 					}
@@ -227,7 +235,8 @@ class FoundryController extends BaseController
 	 */
 	public function create()
 	{
-		$resource = new $this->getModel();
+		$model = $this->getModel();
+		$resource = new $model;
 
 		return View::make('foundry.edit')
 			->with('resource', $resource)

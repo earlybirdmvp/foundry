@@ -12,9 +12,9 @@
 @foreach ( $columns as $name => $column )
 
 <div class="resource-column">
-	<label>{{{ $column['label'] or $name }}}</label>
+	<label>{{{ $column->label or $name }}}</label>
 
-@if ( $column['primary'] )
+@if ( $column->primary )
 
 	{{ Form::hidden($name, $resource->$name) }}
 
@@ -29,40 +29,40 @@
 @else
 	@if ( $relations[$name] )
 
-		{{ Form::select($name, $relations[$name]['options'], $resource->$name) }}
+		{{ Form::select($name, $relations[$name]->options, $resource->$name) }}
 
-	@elseif ( $column['is_email'] )
+	@elseif ( $column->is_email )
 
 		{{ Form::email($name, $resource->$name, [
-			'maxlength' => $column['length']
+			'maxlength' => $column->length
 		]) }}
 
-	@elseif ( $column['type'] == 'text' )
+	@elseif ( $column->type == 'text' )
 
 		{{ Form::textarea($name, $resource->$name) }}
 
-	@elseif ( $column['type'] == 'string' ||
-		$column['type'] == 'integer' || 
-		$column['type'] == 'decimal' ||
-		$column['type'] == 'bigint' )
+	@elseif ( $column->type == 'string' ||
+		$column->type == 'integer' || 
+		$column->type == 'decimal' ||
+		$column->type == 'bigint' )
 
 		{{ Form::text($name, $resource->$name, [
-			'maxlength' => $column['length']
+			'maxlength' => $column->length
 		]) }}
 
-	@elseif ( $column['type'] == 'date' )
+	@elseif ( $column->type == 'date' )
 
 		{{ Form::text($name.'[year]', substr($resource->$name, 0, 4), ['maxlength' => 4]) }}
 		{{ Form::selectMonth($name.'[month]', substr($resource->$name, 5, 2)) }}
 		{{ Form::selectRange($name.'[day]', 1, 31, substr($resource->$name, 8, 2)) }}
 
-	@elseif ( $column['type'] == 'boolean' )
+	@elseif ( $column->type == 'boolean' )
 
 		{{ Form::checkbox($name, 1, $resource->$name) }}
 
 	@else
 
-		<span>Unknown type: {{{ $column['type'] }}}</span>
+		<span>Unknown type: {{{ $column->type }}}</span>
 
 	@endif
 @endif

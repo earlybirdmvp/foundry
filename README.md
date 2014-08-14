@@ -78,6 +78,13 @@ class Product extends Foundry {
 }
 ```
 
+## Options
+
+### Controller
+
+* Specify the model with `protected $model`. Default is class name with "Controller" stripped off.
+* Set the number of items shown per page with `protected $per_page`. Default 10.
+
 ## Todo
 
 * package this better (as a bundle?)
@@ -87,5 +94,4 @@ class Product extends Foundry {
 * improve support for relationships
 * delete resources
 * bulk updates and deletes
-* pagination options
 * more flexible layout
