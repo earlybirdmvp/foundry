@@ -130,7 +130,7 @@ class FoundryController extends \BaseController
 						}
 					}
 
-					$rel = new stdClass();
+					$rel = new \stdClass();
 					$rel->class = $class;
 					$rel->options = $options;
 

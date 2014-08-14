@@ -39,7 +39,7 @@ class Foundry extends \Eloquent
 
 		foreach( $raw_indexes as $raw )
 		{
-			$idx = new stdClass();
+			$idx = new \stdClass();
 			$idx->columns = $raw->getColumns();
 			$idx->primary = $raw->isPrimary();
 			$idx->unique  = $raw->isUnique();
@@ -76,7 +76,7 @@ class Foundry extends \Eloquent
 				}
 			}
 
-			$col = new stdClass();
+			$col = new \stdClass();
 			$col->label    = ( $raw->getComment() ? $raw->getComment() : NULL );
 			$col->is_email = ( $raw->getType()->getName() == 'string' && str_contains($raw->getName(), 'email') );
 			$col->relationship = str_replace('_id', '', $raw->getName());
