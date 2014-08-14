@@ -24,8 +24,8 @@ class FoundryController extends \BaseController
 	{
 		$class = get_class($this);
 
-		View::share('foundry_class', $class);
-		View::share('foundry_model', $this->model);
+		\View::share('foundry_class', $class);
+		\View::share('foundry_model', $this->model);
 	}
 
 	/**
@@ -77,7 +77,7 @@ class FoundryController extends \BaseController
 			}
 		}
 
-		return View::make('foundry::index')
+		return \View::make('foundry::index')
 			->with('resources', $resources)
 			->with('columns', $columns)
 			->with('relations', $relations);
@@ -140,7 +140,7 @@ class FoundryController extends \BaseController
 			}
 		}
 
-		return View::make('foundry::edit')
+		return \View::make('foundry::edit')
 			->with('resource', $resource)
 			->with('columns', $resource->getVisibleColumns())
 			->with('relations', $relations);
@@ -152,7 +152,7 @@ class FoundryController extends \BaseController
 	public function store()
 	{
 		$model = $this->getModel();
-		$id = Input::get('id');
+		$id = \Input::get('id');
 
 		// Determine if editing or creating
 		if( $id )
@@ -165,11 +165,11 @@ class FoundryController extends \BaseController
 		}
 
 		// Run validator on rules
-		$validator = Validator::make(Input::all(), $resource->getRules());
+		$validator = \Validator::make(\Input::all(), $resource->getRules());
 
 		if( $validator->fails() )
 		{
-			return Redirect::action(get_called_class().'@edit', ['id' => $id])
+			return \Redirect::action(get_called_class().'@edit', ['id' => $id])
 				->withErrors($validator)
 				->withInput();
 		}
@@ -177,9 +177,9 @@ class FoundryController extends \BaseController
 		{
 			foreach( $resource->getEditableColumns() as $name => $column )
 			{
-				if( Input::has($name) )
+				if( \Input::has($name) )
 				{
-					$value = Input::get($name);
+					$value = \Input::get($name);
 
 					// Additional formatting
 					if( $column->type == 'date' )
@@ -226,7 +226,7 @@ class FoundryController extends \BaseController
 
 			$resource->save();
 
-			return Redirect::action(get_called_class().'@index');
+			return \Redirect::action(get_called_class().'@index');
 		}
 	}
 
@@ -240,7 +240,7 @@ class FoundryController extends \BaseController
 		$model = $this->getModel();
 		$resource = new $model;
 
-		return View::make('foundry::edit')
+		return \View::make('foundry::edit')
 			->with('resource', $resource)
 			->with('columns', $resource->getVisibleColumns());
 	}

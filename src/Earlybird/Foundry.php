@@ -33,7 +33,7 @@ class Foundry extends \Eloquent
 	{
 		if( count($this->indexes) > 0 ) return $this->indexes;
 
-		$raw_indexes = DB::connection()
+		$raw_indexes = \DB::connection()
 			->getDoctrineSchemaManager()
 			->listTableIndexes($this->getTable());
 
@@ -59,7 +59,7 @@ class Foundry extends \Eloquent
 	{
 		if( count($this->columns) > 0 ) return $this->columns;
 
-		$raw_columns = DB::connection()
+		$raw_columns = \DB::connection()
 			->getDoctrineSchemaManager()
 			->listTableColumns($this->getTable());
 
