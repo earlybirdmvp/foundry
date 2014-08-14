@@ -59,7 +59,7 @@ class FoundryController extends BaseController
 	public function index()
 	{
 		$model = $this->getModel();
-		$resources = call_user_func([$this->getModel(), 'paginate'], $this->per_page);
+		$resources = $model::paginate($this->per_page);
 		$columns = with(new $model)->getVisibleColumns();
 
 		// Try to determine relationships
@@ -77,7 +77,7 @@ class FoundryController extends BaseController
 			}
 		}
 
-		return View::make('foundry.index')
+		return View::make('foundry::index')
 			->with('resources', $resources)
 			->with('columns', $columns)
 			->with('relations', $relations);
@@ -91,7 +91,8 @@ class FoundryController extends BaseController
 	 */
 	public function edit( $id )
 	{
-		$resource = call_user_func([$this->getModel(), 'findOrFail'], $id);
+		$model = $this->getModel();
+		$resource = $model::findOrFail($id);
 
 		$relations = array();
 
@@ -139,7 +140,7 @@ class FoundryController extends BaseController
 			}
 		}
 
-		return View::make('foundry.edit')
+		return View::make('foundry::edit')
 			->with('resource', $resource)
 			->with('columns', $resource->getVisibleColumns())
 			->with('relations', $relations);
@@ -150,16 +151,17 @@ class FoundryController extends BaseController
 	 */
 	public function store()
 	{
+		$model = $this->getModel();
 		$id = Input::get('id');
 
 		// Determine if editing or creating
 		if( $id )
 		{
-			$resource = call_user_func([$this->getModel(), 'findOrFail'], $id);
+			$resource = $model::findOrFail($id);
 		}
 		else
 		{
-			$resource = new $this->getModel();
+			$resource = new $model;
 		}
 
 		// Run validator on rules
@@ -238,7 +240,7 @@ class FoundryController extends BaseController
 		$model = $this->getModel();
 		$resource = new $model;
 
-		return View::make('foundry.edit')
+		return View::make('foundry::edit')
 			->with('resource', $resource)
 			->with('columns', $resource->getVisibleColumns());
 	}

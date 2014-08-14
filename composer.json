@@ -1,0 +1,20 @@
+{
+	"name": "earlybirdmvp/foundry",
+	"description": "A simple but powerful CRUD tool for Laravel",
+	"keywords": ["laravel", "crud", "activerecord"],
+	"homepage": "https://github.com/earlybirdmvp/foundry",
+	"authors": [
+		{
+			"name": "Earlybird",
+			"email": "andrew@earlybird.co",
+			"homepage": "http://eggs.earlybird.co"
+		}
+	],
+	"require": {
+		"laravel/framework": ">=4.2.0",
+		"doctrine/dbal": "*",
+	}
+	"autoload": {
+		"classmap": ["src"]
+	}
+}

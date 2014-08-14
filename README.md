@@ -5,9 +5,22 @@ Easily perform CRUD tasks on Eloquent models
 
 This is a replacement for Laravel's Resource Controllers, which are very lightweight.
 
-First add "doctrine/dbal" to your composer.json file and run `composer update`
+## Installation 
 
-Next create your Foundry model. (Foundry extends Eloquent) 
+Add "earlybirdmvp/foundry" to your composer.json file and run `composer update`.
+
+Then add these lines to your `app/start/global.php` file:
+
+```php
+View::addLocation(base_path().'/vendor/earlybirdmvp/foundry/views');
+View::addNamespace('foundry', base_path().'/vendor/earlybirdmvp/foundry/views');
+```
+
+Finally, you can optionally copy and modify the SASS file.
+
+## Getting Started
+
+First create your Foundry model. (Foundry extends Eloquent) 
 
 ```php
 class Product extends Foundry { }
