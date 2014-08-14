@@ -1,6 +1,6 @@
-<?php
+<?php namespace Earlybird;
 
-class FoundryController extends BaseController
+class FoundryController extends \BaseController
 {
 
 	/**
@@ -37,7 +37,7 @@ class FoundryController extends BaseController
 	{
 		if (isset($this->model)) return $this->model;
 
-		return str_replace(['\\', 'Controller'], '', get_class($this));
+		return str_replace('Controller', '', get_class($this));
 	}
 
 	/**

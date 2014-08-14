@@ -23,13 +23,13 @@ Finally, you can optionally copy and modify the SASS file.
 First create your Foundry model. (Foundry extends Eloquent) 
 
 ```php
-class Product extends Foundry { }
+class Product extends \Earlybird\Foundry { }
 ```
 
 Then create a Controller:
 
 ```php
-class ProductController extends FoundryController { }
+class ProductController extends \Earlybird\FoundryController { }
 ```
 
 Finally add a Route resource group. See http://laravel.com/docs/controllers#resource-controllers
