@@ -13,7 +13,7 @@
 	"require": {
 		"laravel/framework": ">=4.2.0",
 		"doctrine/dbal": "*"
-	}
+	},
 	"autoload": {
 		"classmap": ["src"]
 	}
