@@ -3,141 +3,77 @@
 class FoundryController extends BaseController
 {
 
+	/**
+	 * The model Class that this Controller manages.
+	 *
+	 * @var string
+	 */
 	protected $model;
-	protected $table;
-
-	protected $indexes = array();
-	protected $columns = array();
-
-	protected $rules = array();
 
 	/**
-	 * Loads all database columns and indexes for this resource
+	 * Constructor.
 	 */
 	public function __construct()
 	{
-		$class = get_called_class();
+		$class = get_class($this);
 
-		$this->model = str_replace('Controller', '', $class);
-		$this->table = with(new $this->model)->getTable();
+		View::share('foundry_class', $class);
+		View::share('foundry_model', $this->model);
+	}
 
-		// @todo issue with enums
-		/*$schema = DB::getDoctrineSchemaManager();
-		$schema->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');*/
+	/**
+	 * Get the model associated with the controller.
+	 *
+	 * @return string
+	 */
+	public function getModel()
+	{
+		if (isset($this->model)) return $this->model;
 
-		// Fetch all indexes from this table
-		$raw_indexes = DB::connection()
-			->getDoctrineSchemaManager()
-			->listTableIndexes($this->table);
+		return str_replace(['\\', 'Controller'], '', get_class($this));
+	}
 
-		foreach( $raw_indexes as $raw )
-		{
-			$this->indexes[] = [
-				'name'    => $raw->getName(),
-				'columns' => $raw->getColumns(),
-				'primary' => $raw->isPrimary(),
-				'unique'  => $raw->isUnique(),
-			];
-		}
-
-		// Fetch all columns from this table
-		$raw_columns = DB::connection()
-			->getDoctrineSchemaManager()
-			->listTableColumns($this->table);
-
-		foreach( $raw_columns as $raw )
-		{
-			// Check if there is an index on this column
-			$matched_index = NULL;
-			foreach( $this->indexes as $index )
-			{
-				if( in_array($raw->getName(), $index['columns']) )
-				{
-					$matched_index = $index;
-					break;
-				}
-			}
-
-			$this->columns[] = [
-				'name'    => $raw->getName(),
-				'label'   => ( $raw->getComment() ? $raw->getComment() : NULL ),
-
-				'is_email' => ( $raw->getType()->getName() == 'string' && str_contains($raw->getName(), 'email') ),
-				'relationship' => str_replace('_id', '', $raw->getName()),
-
-				'type'     => $raw->getType()->getName(),
-				'default'  => $raw->getDefault(),
-				'length'   => $raw->getLength(),
-				'required' => $raw->getNotnull() ? true : false,
-
-				'primary' => $matched_index['primary'],
-				'unique'  => $matched_index['unique'],
-			];
-		}
-
-		// Generate default validator rules
-		foreach( $this->columns as $column )
-		{
-			if( ! $column['primary'] )
-			{
-				$rules = array();
-
-				// If it's not nullable and not a boolean
-				// Booleans are checkboxes so they should never be "required"
-				if( $column['required'] && $column['type'] != 'boolean' )
-				{
-					$rules[] = 'required';
-				}
-				// If the column contains "email"
-				if( $column['is_email'] )
-				{
-					$rules[] = 'email';
-				}
-				if( $column['unique'] )
-				{
-					$rules[] = 'unique:'.$this->table.','.$column['name'];
-				}
-
-				if( count($rules) > 0 )
-				{
-					$this->rules[$column['name']] = $rules;
-				}
-			}
-		}
-
-		View::share('resource_class', $class);
-		View::share('resource_model', $this->model);
+	/**
+	 * Set the model associated with the controller.
+	 *
+	 * @param  string  $model
+	 * @return void
+	 */
+	public function setModel($model)
+	{
+		$this->model = $model;
 	}
 
 	/**
 	 * List all resources of this type
-	 * @todo    pagination
 	 *
 	 * @return  Response
 	 */
 	public function index()
 	{
-		$resources = call_user_func([$this->model, 'paginate'], 10);
+		$model = $this->getModel();
+		$resources = call_user_func([$this->getModel(), 'paginate'], 10);
+		$columns = with(new $model)->getVisibleColumns();
 
 		// Try to determine relationships
-		foreach( $this->columns as $column )
+		// @todo use get_class_methods instead, move to Model
+		foreach( $columns as $name => $column )
 		{
-			if( ends_with($column['name'], '_id') )
+			if( ends_with($name, '_id') )
 			{
 				try
 				{
 					$resources->load($column['relationship']);
-					$relations[$column['name']] = true;
+					$relations[$name] = true;
 				}
 				catch( Exception $e ) { }
 			}
 		}
 
-		return View::make('foundry.list')
+		return View::make('foundry.index')
 			->with('resources', $resources)
-			->with('columns', $this->columns)
-			->with('relations', $relations)
-			->with('hidden_columns', with(new $this->model)->getHidden());
+			->with('columns', $columns)
+			->with('relations', $relations);
 	}
 
 	/**
@@ -148,14 +84,14 @@ class FoundryController extends BaseController
 	 */
 	public function edit( $id )
 	{
-		$resource = call_user_func([$this->model, 'findOrFail'], $id);
+		$resource = call_user_func([$this->getModel(), 'findOrFail'], $id);
 
 		$relations = array();
 
 		// Try to determine relationships
-		foreach( $this->columns as $column )
+		foreach( $resource->getVisibleColumns() as $name => $column )
 		{
-			if( ends_with($column['name'], '_id') )
+			if( ends_with($name, '_id') )
 			{
 				try
 				{
@@ -186,7 +122,7 @@ class FoundryController extends BaseController
 						}
 					}
 
-					$relations[$column['name']] = [
+					$relations[$name] = [
 						'class' => $class,
 						'options' => $options
 					];
@@ -197,9 +133,8 @@ class FoundryController extends BaseController
 
 		return View::make('foundry.edit')
 			->with('resource', $resource)
-			->with('columns', $this->columns)
-			->with('relations', $relations)
-			->with('hidden_columns', $resource->getHidden());
+			->with('columns', $resource->getVisibleColumns())
+			->with('relations', $relations);
 	}
 
 	/**
@@ -209,32 +144,18 @@ class FoundryController extends BaseController
 	{
 		$id = Input::get('id');
 
-		$rules = $this->rules;
-
 		// Determine if editing or creating
 		if( $id )
 		{
-			$resource = call_user_func([$this->model, 'findOrFail'], $id);
-
-			foreach( $rules as $key => $ruleset )
-			{
-				for( $i=0; $i<count($ruleset); $i++ )
-				{
-					if( strstr($ruleset[$i], 'unique') )
-					{
-						$rules[$key][$i] .= ','.$id;
-					}
-				}
-				$rules[$key] = implode('|', $rules[$key]);
-			}
+			$resource = call_user_func([$this->getModel(), 'findOrFail'], $id);
 		}
 		else
 		{
-			$resource = new $this->model();
+			$resource = new $this->getModel();
 		}
 
 		// Run validator on rules
-		$validator = Validator::make(Input::all(), $rules);
+		$validator = Validator::make(Input::all(), $resource->getRules());
 
 		if( $validator->fails() )
 		{
@@ -244,61 +165,51 @@ class FoundryController extends BaseController
 		}
 		else
 		{
-			foreach( $this->columns as $column )
+			foreach( $resource->getEditableColumns() as $name => $column )
 			{
-
-				// Update columns. Only those which have input, and excluding hidden & primary key
-				if( ! in_array($column['name'], $resource->getHidden()) &&
-					! $resource->isGuarded($column['name']) &&
-			        $column['name'] != $resource->getCreatedAtColumn() &&
-			        $column['name'] != $resource->getUpdatedAtColumn() &&
-					! $column['primary'] )
+				if( Input::has($name) )
 				{
+					$value = Input::get($name);
 
-					if( Input::has($column['name']) )
+					// Additional formatting
+					if( $column['type'] == 'date' )
 					{
-						$value = Input::get($column['name']);
-
-						// Additional formatting
-						if( $column['type'] == 'date' )
-						{
-							$value = $value['year'].'-'.$value['month'].'-'.$value['day'];
-						}
-
-						$resource->$column['name'] = $value;
+						$value = $value['year'].'-'.$value['month'].'-'.$value['day'];
 					}
-					// Data removed
-					else
+
+					$resource->$name = $value;
+				}
+				// Data removed
+				else
+				{
+					switch( $column['type'] )
 					{
-						switch( $column['type'] )
-						{
-							case 'integer':
-							case 'bigint':
-							case 'decimal':
-							case 'boolean':
-								$default = 0;
-								break;
+						case 'integer':
+						case 'bigint':
+						case 'decimal':
+						case 'boolean':
+							$default = 0;
+							break;
 
-							case 'string':
-							case 'text':
-								$default = '';
-								break;
+						case 'string':
+						case 'text':
+							$default = '';
+							break;
 
-							default:
-								$default = NULL;
-								break;
-						}
-
-						$not_nullable = ['boolean', 'string', 'text'];
-
-						// If not required
-						if( ! $column['required'] && ! in_array($column['type'], $not_nullable) )
-						{
+						default:
 							$default = NULL;
-						}
-
-						$resource->$column['name'] = $default;
+							break;
 					}
+
+					$not_nullable = ['boolean', 'string', 'text'];
+
+					// If not required
+					if( ! $column['required'] && ! in_array($column['type'], $not_nullable) )
+					{
+						$default = NULL;
+					}
+
+					$resource->$name = $default;
 				}
 
 			}
@@ -316,12 +227,11 @@ class FoundryController extends BaseController
 	 */
 	public function create()
 	{
-		$resource = new $this->model();
+		$resource = new $this->getModel();
 
 		return View::make('foundry.edit')
 			->with('resource', $resource)
-			->with('columns', $this->columns)
-			->with('hidden_columns', $resource->getHidden());
+			->with('columns', $resource->getVisibleColumns());
 	}
 
 }
