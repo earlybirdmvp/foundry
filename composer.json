@@ -3,6 +3,7 @@
 	"description": "A simple but powerful CRUD tool for Laravel",
 	"keywords": ["laravel", "crud", "activerecord"],
 	"homepage": "https://github.com/earlybirdmvp/foundry",
+	"license": "Apache-2.0",
 	"authors": [
 		{
 			"name": "Andrew Weber",
