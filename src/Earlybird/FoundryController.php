@@ -224,6 +224,10 @@ class FoundryController extends \BaseController
 
 			}
 
+			if( method_exists($resource, 'detectChange') ) {
+				$resource->detectChange();
+			}
+
 			$resource->save();
 
 			return \Redirect::action(get_called_class().'@index');

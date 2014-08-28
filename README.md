@@ -50,7 +50,7 @@ Now you simply need to go to the URL `product` and you will see a paginated list
 * Supported data types:
 
 ```
-bigint, boolean, date, decimal, integer, string, text
+bigint, char, date, decimal, enum, int, text, tinyint, varchar
 ```
 
 * Validation is built in. `NOT NULL` columns are considered "required", any column containing "email" inside its name must be a valid email address, and columns with unique indexes are checked
@@ -97,6 +97,14 @@ class Product extends Earlybird\Foundry {
 
 * Specify the model with `protected $model`. Default is class name with "Controller" stripped off.
 * Set the number of items shown per page with `protected $per_page`. Default 10.
+* If you wish to detect updates, create a `detectChange` function. This is called before `save()` so that you can compare the old and new values
+
+```php
+class OrderController extends Earlybird\FoundryController {
+  public function detectChange() {
+    // Email customer update that order status was changed
+  }
+}
 
 ## Todo
 

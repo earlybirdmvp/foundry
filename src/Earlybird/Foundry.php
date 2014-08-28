@@ -59,9 +59,7 @@ class Foundry extends \Eloquent
 	{
 		if( count($this->columns) > 0 ) return $this->columns;
 
-		$raw_columns = \DB::connection()
-			->getDoctrineSchemaManager()
-			->listTableColumns($this->getTable());
+		$raw_columns = \DB::select("SHOW COLUMNS FROM ".$this->getTable());
 
 		foreach( $raw_columns as $raw )
 		{
@@ -69,27 +67,48 @@ class Foundry extends \Eloquent
 			$matched_index = NULL;
 			foreach( $this->getIndexes() as $index )
 			{
-				if( in_array($raw->getName(), $index->columns) )
+				if( in_array($raw->Field, $index->columns) )
 				{
 					$matched_index = $index;
 					break;
 				}
 			}
 
-			$col = new \stdClass();
-			$col->label    = ( $raw->getComment() ? $raw->getComment() : NULL );
-			$col->is_email = ( $raw->getType()->getName() == 'string' && str_contains($raw->getName(), 'email') );
-			$col->relationship = str_replace('_id', '', $raw->getName());
+			$type = $raw->Type;
+			if( preg_match('/([a-z]+)\(([0-9]+)\)/', $raw->Type, $matches) ) {
+				$type = $matches[1];
+				$length = $matches[2];
+			}
+			else if( preg_match('/([a-z]+)\(([0-9]+,[0-9]+)\)/', $raw->Type, $matches) ) {
+				$type = $matches[1];
+				$length = $matches[2];
+			}
+			else if( preg_match('/([a-z]+)\(\'(.*)\'\)/', $raw->Type, $matches) ) {
+				$raw_options = str_replace("','", ",", $matches[2]);
+				$raw_options = explode(',', $raw_options);
+				foreach( $raw_options as $opt ) { $options[$opt] = $opt; }
+				$type = $matches[1];
+			}
 
-			$col->type     = $raw->getType()->getName();
-			$col->default  = $raw->getDefault();
-			$col->length   = $raw->getLength();
-			$col->required = $raw->getNotnull() ? true : false;
+			if( $type == 'tinyint' && $length == 1 ) {
+				$type = 'boolean';
+			}
+
+			$col = new \stdClass();
+			//$col->label    = ( $raw->getComment() ? $raw->getComment() : NULL );
+			$col->is_email = ( str_contains($type, 'varchar') && str_contains($raw->Field, 'email') );
+			$col->relationship = str_replace('_id', '', $raw->Field);
+
+			$col->type     = $type;
+			$col->default  = $raw->Default;
+			$col->length   = $length;
+			$col->options  = $options;
+			$col->required = $raw->Null == 'NO' ? true : false;
 
 			$col->primary = $matched_index->primary;
 			$col->unique  = $matched_index->unique;
 
-			$this->columns[$raw->getName()] = $col;
+			$this->columns[$raw->Field] = $col;
 		}
 
 		return $this->columns;

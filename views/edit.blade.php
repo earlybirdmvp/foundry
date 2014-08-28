@@ -41,8 +41,9 @@
 
 		{{ Form::textarea($name, $resource->$name) }}
 
-	@elseif ( $column->type == 'string' ||
-		$column->type == 'integer' || 
+	@elseif ( $column->type == 'varchar' ||
+		$column->type == 'char' ||
+		$column->type == 'int' || 
 		$column->type == 'decimal' ||
 		$column->type == 'bigint' )
 
@@ -59,6 +60,10 @@
 	@elseif ( $column->type == 'boolean' )
 
 		{{ Form::checkbox($name, 1, $resource->$name) }}
+
+	@elseif ( $column->type == 'enum' )
+
+		{{ Form::select($name, $column->options, $resource->$name) }}
 
 	@else
 
