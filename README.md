@@ -105,6 +105,7 @@ class OrderController extends Earlybird\FoundryController {
     // Email customer update that order status was changed
   }
 }
+```
 
 ## Todo
 

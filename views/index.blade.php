@@ -2,9 +2,9 @@
 
 @section('content')
 
-@if ( count($resources) > 0 )
-
 <a href="{{ URL::action($foundry_class.'@create') }}">Create</a>
+
+@if ( count($resources) > 0 )
 
 <table class="resource-table" cellspacing="0" cellpadding="0" border="0" width="100%">
 <tr>

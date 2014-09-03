@@ -169,9 +169,16 @@ class FoundryController extends \BaseController
 
 		if( $validator->fails() )
 		{
-			return \Redirect::action(get_called_class().'@edit', ['id' => $id])
-				->withErrors($validator)
-				->withInput();
+			if( $id ) {
+				return \Redirect::action(get_called_class().'@edit', ['id' => $id])
+					->withErrors($validator)
+					->withInput();
+			}
+			else {
+				return \Redirect::action(get_called_class().'@create')
+					->withErrors($validator)
+					->withInput();
+			}
 		}
 		else
 		{
@@ -243,6 +250,15 @@ class FoundryController extends \BaseController
 	{
 		$model = $this->getModel();
 		$resource = new $model;
+
+		// Set default values
+		foreach( $resource->getEditableColumns() as $name => $column )
+		{
+			if( $column->default )
+			{
+				$resource->$name = $column->default;
+			}
+		}
 
 		return \View::make('foundry::edit')
 			->with('resource', $resource)

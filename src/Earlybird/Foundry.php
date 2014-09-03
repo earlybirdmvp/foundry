@@ -97,7 +97,7 @@ class Foundry extends \Eloquent
 			$col = new \stdClass();
 			//$col->label    = ( $raw->getComment() ? $raw->getComment() : NULL );
 			$col->is_email = ( str_contains($type, 'varchar') && str_contains($raw->Field, 'email') );
-			$col->relationship = str_replace('_id', '', $raw->Field);
+			$col->relationship = camel_case(str_replace('_id', '', $raw->Field));
 
 			$col->type     = $type;
 			$col->default  = $raw->Default;
@@ -160,7 +160,8 @@ class Foundry extends \Eloquent
 
 				// If it's not nullable and not a boolean
 				// Booleans are checkboxes so they should never be "required"
-				if( $column->required && $column->type != 'boolean' )
+				if( $column->required && $column->type != 'boolean' &&
+					in_array($name, $this->getEditableColumns()) )
 				{
 					$rules[] = 'required';
 				}
