@@ -75,6 +75,8 @@ class Foundry extends \Eloquent
 			}
 
 			$type = $raw->Type;
+			$options = array();
+
 			if( preg_match('/([a-z]+)\(([0-9]+)\)/', $raw->Type, $matches) ) {
 				$type = $matches[1];
 				$length = $matches[2];
@@ -123,7 +125,7 @@ class Foundry extends \Eloquent
 	{
 		if ($this->totallyGuarded())
 		{
-			throw new \MassAssignmentException($key);
+			throw new \Illuminate\Database\Eloquent\MassAssignmentException($key);
 		}
 
 		$columns = array_diff_key($this->getColumns(),
@@ -161,7 +163,7 @@ class Foundry extends \Eloquent
 				// If it's not nullable and not a boolean
 				// Booleans are checkboxes so they should never be "required"
 				if( $column->required && $column->type != 'boolean' &&
-					in_array($name, $this->getEditableColumns()) )
+					in_array($name, array_keys($this->getEditableColumns())) )
 				{
 					$rules[] = 'required';
 				}
@@ -183,6 +185,16 @@ class Foundry extends \Eloquent
 		}
 
 		return $this->rules;
+	}
+
+	/**
+	 * Get table name statically
+	 *
+	 * @return string
+	 */
+	public static function getTableName()
+	{
+		return with(new static)->getTable();
 	}
 
 }

@@ -77,7 +77,11 @@ class FoundryController extends \BaseController
 			}
 		}
 
-		return \View::make('foundry::index')
+		$template = ( \View::exists($model::getTableName().'.index') ?
+			$model::getTableName().'.index' :
+			'foundry::index' );
+
+		return \View::make($template)
 			->with('resources', $resources)
 			->with('columns', $columns)
 			->with('relations', $relations);
@@ -140,7 +144,11 @@ class FoundryController extends \BaseController
 			}
 		}
 
-		return \View::make('foundry::edit')
+		$template = ( \View::exists($model::getTableName().'.edit') ?
+			$model::getTableName().'.edit' :
+			'foundry::edit' );
+
+		return \View::make($template)
 			->with('resource', $resource)
 			->with('columns', $resource->getVisibleColumns())
 			->with('relations', $relations);
@@ -210,15 +218,18 @@ class FoundryController extends \BaseController
 
 						case 'string':
 						case 'text':
+						case 'varchar':
 							$default = '';
 							break;
 
+						case 'char':
+						case 'enum':
 						default:
 							$default = NULL;
 							break;
 					}
 
-					$not_nullable = ['boolean', 'string', 'text'];
+					$not_nullable = ['boolean', 'string', 'text', 'varchar'];
 
 					// If not required
 					if( ! $column->required && ! in_array($column->type, $not_nullable) )
@@ -260,7 +271,11 @@ class FoundryController extends \BaseController
 			}
 		}
 
-		return \View::make('foundry::edit')
+		$template = ( \View::exists($model::getTableName().'.edit') ?
+			$model::getTableName().'.edit' :
+			'foundry::edit' );
+
+		return \View::make($template)
 			->with('resource', $resource)
 			->with('columns', $resource->getVisibleColumns());
 	}

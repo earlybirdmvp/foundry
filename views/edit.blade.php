@@ -1,54 +1,62 @@
-@extends('layout')
-
-@section('content')
-
 <a href="{{ URL::action($foundry_class.'@index') }}">View All</a>
 
 @if ( count($columns) > 0 )
 
-<form class="resource-form" method="post" action="{{ URL::action($foundry_class.'@store') }}">
+<form class="form-horizontal" method="post" action="{{ URL::action($foundry_class.'@store') }}">
 <div>
 
 @foreach ( $columns as $name => $column )
 
-<div class="resource-column">
-	<label>{{{ $column->label or $name }}}</label>
-
+<div class="form-group{{ $errors->has($name) ? ' has-error has-feedback' : '' }}">
 @if ( $column->primary )
 
-	{{ Form::hidden($name, $resource->$name) }}
+	<label class="col-sm-2 control-label">{{{ $column->label or $name }}}</label>
 
-	<span>{{{ $resource->$name }}}</span>
+	<div class="col-sm-5">
+		{{ Form::hidden($name, $resource->$name) }}
 
-@elseif ( $resource->isGuarded($name) || 
+		<p class="form-control-static">{{{ $resource->$name }}}</p>
+	</div>
+
+@elseif ( $resource->isGuarded($name) ||
 	$name == $resource->getCreatedAtColumn() ||
 	$name == $resource->getUpdatedAtColumn() )
 
-	<span>{{{ $resource->$name }}}</span>
+	<label class="col-sm-2 control-label">{{{ $column->label or $name }}}</label>
+
+	<div class="col-sm-5">
+		<p class="form-control-static">{{{ $resource->$name }}}</p>
+	</div>
 
 @else
+
+	<label class="col-sm-2 control-label">{{{ $column->label or $name }}}{{ $column->required && $column->type != 'boolean' ? ' *' : '' }}</label>
+
+	<div class="col-sm-5">
 	@if ( $relations[$name] )
 
-		{{ Form::select($name, $relations[$name]->options, $resource->$name) }}
+		{{ Form::select($name, $relations[$name]->options, $resource->$name, ['class' => 'form-control']) }}
 
 	@elseif ( $column->is_email )
 
 		{{ Form::email($name, $resource->$name, [
-			'maxlength' => $column->length
+			'maxlength' => $column->length,
+			'class' => 'form-control',
 		]) }}
 
 	@elseif ( $column->type == 'text' )
 
-		{{ Form::textarea($name, $resource->$name) }}
+		{{ Form::textarea($name, $resource->$name, ['class' => 'form-control']) }}
 
 	@elseif ( $column->type == 'varchar' ||
 		$column->type == 'char' ||
-		$column->type == 'int' || 
+		$column->type == 'int' ||
 		$column->type == 'decimal' ||
 		$column->type == 'bigint' )
 
 		{{ Form::text($name, $resource->$name, [
-			'maxlength' => $column->length
+			'maxlength' => $column->length,
+			'class' => 'form-control',
 		]) }}
 
 	@elseif ( $column->type == 'date' )
@@ -63,28 +71,38 @@
 
 	@elseif ( $column->type == 'enum' )
 
-		{{ Form::select($name, $column->options, $resource->$name) }}
+		{{ Form::select($name, $column->options, $resource->$name, ['class' => 'form-control']) }}
 
 	@else
 
-		<span>Unknown type: {{{ $column->type }}}</span>
+		<p class="form-control-static">Unknown type: {{{ $column->type }}}</p>
 
 	@endif
-@endif
 
-	{{ $errors->first($name, '<span class="error">:message</div>') }}
+		@if ( $errors->has($name) )
+		<span class="glyphicon glyphicon-remove form-control-feedback"></span>
+		@endif
+
+	</div>
+
+	@if ( $errors->has($name) )
+	<div class="col-sm-3">
+		<p class="form-control-static">{{ $errors->first($name) }}</p>
+	</div>
+	@endif
+@endif
 
 </div>
 
 @endforeach
 
-	<div class="resource-column">
-		<input type="submit" value="Save Node">
+<div class="form-group">
+	<div class="col-sm-offset-2 col-sm-5">
+		<input type="submit" value="Save Node" class="btn btn-primary">
 	</div>
+</div>
 
 </div>
 </form>
 
 @endif
-
-@stop

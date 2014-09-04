@@ -16,8 +16,6 @@ View::addLocation(base_path().'/vendor/earlybirdmvp/foundry/views');
 View::addNamespace('foundry', base_path().'/vendor/earlybirdmvp/foundry/views');
 ```
 
-Finally, you can optionally copy and modify the SASS file.
-
 ## Getting Started
 
 First create your Foundry model. (Foundry extends Eloquent) 
@@ -45,6 +43,7 @@ Now you simply need to go to the URL `product` and you will see a paginated list
 
 ## Features
 
+* Works well with Bootstrap classes
 * This is meant to be a CMS, not a DB admin tool. Therefore the Eloquent `$hidden` and `$guarded` arrays are respected and not visible or editable, respectively.
 * If a column name has a comment, that is shown instead (can be used to create user-friendly labels)
 * Supported data types:

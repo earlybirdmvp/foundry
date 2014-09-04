@@ -1,18 +1,17 @@
-@extends('layout')
-
-@section('content')
-
 <a href="{{ URL::action($foundry_class.'@create') }}">Create</a>
 
 @if ( count($resources) > 0 )
 
-<table class="resource-table" cellspacing="0" cellpadding="0" border="0" width="100%">
+<table class="table table-striped table-hover" cellspacing="0" cellpadding="0" border="0" width="100%">
+<thead>
 <tr>
 @foreach ( $columns as $name => $column )
 	<th>{{{ $column->label or $name }}}</th>
 @endforeach
 </tr>
+</thead>
 
+<tbody>
 @foreach ( $resources as $resource )
 <tr>
 @foreach ( $columns as $name => $column )
@@ -44,11 +43,10 @@
 @endforeach
 </tr>
 @endforeach
+</tbody>
 
 </table>
 
 @endif
 
 {{ $resources->links() }}
-
-@stop
