@@ -236,12 +236,14 @@ class FoundryController extends \BaseController
 
 						if( $file->isValid() )
 						{
-							$value = $file->getClientOriginalName();
-							$file->move(storage_path().'/uploads');
+							$value = time().'_'.str_random().'.'.$file->getClientOriginalExtension();
+							$file->move(storage_path().'/uploads', $value);
 						}
 					}
 
-					$resource->$name = $value;
+					if( $value ) {
+						$resource->$name = $value;
+					}
 				}
 				// Data removed
 				else
