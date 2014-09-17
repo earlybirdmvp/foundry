@@ -77,14 +77,26 @@ class Foundry extends \Eloquent
 			$type = $raw->Type;
 			$options = array();
 
+			// Standard fields with length argument, e.g.
+			// int(10), tinyint(1), char(60), varchar(100)
 			if( preg_match('/([a-z]+)\(([0-9]+)\)/', $raw->Type, $matches) ) {
 				$type = $matches[1];
 				$length = $matches[2];
+
+				if( in_array($raw->Field, $this->getFileColumns() ) ) {
+					$type = 'file';
+				}
+				else if( $type == 'char' && str_contains($raw->Field, 'password') ) {
+					$type = 'password';
+				}
 			}
+			// Fields with two arguments, e.g.
+			// decimal(8,2)
 			else if( preg_match('/([a-z]+)\(([0-9]+,[0-9]+)\)/', $raw->Type, $matches) ) {
 				$type = $matches[1];
 				$length = $matches[2];
 			}
+			// Enum fields
 			else if( preg_match('/([a-z]+)\(\'(.*)\'\)/', $raw->Type, $matches) ) {
 				$raw_options = str_replace("','", ",", $matches[2]);
 				$raw_options = explode(',', $raw_options);
@@ -141,9 +153,29 @@ class Foundry extends \Eloquent
 	 */
 	public function getVisibleColumns()
 	{
+		if( count($this->visible) > 0 )
+		{
+			return array_intersect_key($this->getColumns(), array_flip($this->visible));
+		}
+
 		$columns = array_diff_key($this->getColumns(), array_flip($this->hidden));
 
 		return $columns;
+	}
+
+	/**
+	 * Get columns which are file uploads.
+	 *
+	 * @return array
+	 */
+	public function getFileColumns()
+	{
+		if( count($this->file_columns) > 0 )
+		{
+			return $this->file_columns;
+		}
+
+		return array();
 	}
 
 	/**

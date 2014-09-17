@@ -25,7 +25,7 @@ class FoundryController extends \BaseController
 		$class = get_class($this);
 
 		\View::share('foundry_class', $class);
-		\View::share('foundry_model', $this->model);
+		\View::share('foundry_model', $this->getModel());
 	}
 
 	/**
@@ -96,7 +96,13 @@ class FoundryController extends \BaseController
 	public function edit( $id )
 	{
 		$model = $this->getModel();
-		$resource = $model::findOrFail($id);
+
+		if( is_object($id) ) {
+			$resource = $id;
+		}
+		else {
+			$resource = $model::findOrFail($id);
+		}
 
 		$relations = array();
 
@@ -200,6 +206,25 @@ class FoundryController extends \BaseController
 					if( $column->type == 'date' )
 					{
 						$value = $value['year'].'-'.$value['month'].'-'.$value['day'];
+					}
+					else if( $column->type == 'password' )
+					{
+						$value = Hash::make('value');
+					}
+
+					$resource->$name = $value;
+				}
+				else if( \Input::hasFile($name) )
+				{
+					if( $column->type == 'file' )
+					{
+						$file = \Input::file($name);
+
+						if( $file->isValid() )
+						{
+							$value = $file->getClientOriginalName();
+							$file->move(storage_path().'/uploads');
+						}
 					}
 
 					$resource->$name = $value;

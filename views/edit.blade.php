@@ -1,8 +1,8 @@
-<a href="{{ URL::action($foundry_class.'@index') }}">View All</a>
+<a class="btn btn-default" href="{{ URL::action($foundry_class.'@index') }}">View All</a>
 
 @if ( count($columns) > 0 )
 
-<form class="form-horizontal" method="post" action="{{ URL::action($foundry_class.'@store') }}">
+<form class="form-horizontal" method="post" action="{{ URL::action($foundry_class.'@store') }}" enctype="multipart/form-data">
 <div>
 
 @foreach ( $columns as $name => $column )
@@ -48,6 +48,10 @@
 
 		{{ Form::textarea($name, $resource->$name, ['class' => 'form-control']) }}
 
+	@elseif ( $column->type == 'password' )
+
+		{{ Form::password($name, ['class' => 'form-control']) }}
+
 	@elseif ( $column->type == 'varchar' ||
 		$column->type == 'char' ||
 		$column->type == 'int' ||
@@ -57,6 +61,13 @@
 		{{ Form::text($name, $resource->$name, [
 			'maxlength' => $column->length,
 			'class' => 'form-control',
+		]) }}
+
+	@elseif ( $column->type == 'file' )
+
+		{{ Form::file($name, [
+			'accept' => 'image/*',
+			'class' => 'form-control'
 		]) }}
 
 	@elseif ( $column->type == 'date' )
@@ -98,7 +109,7 @@
 
 <div class="form-group">
 	<div class="col-sm-offset-2 col-sm-5">
-		<input type="submit" value="Save Node" class="btn btn-primary">
+		<input type="submit" value="Save {{ $foundry_model }}" class="btn btn-primary">
 	</div>
 </div>
 

@@ -1,4 +1,4 @@
-<a href="{{ URL::action($foundry_class.'@create') }}">Create</a>
+<a class="btn btn-default" href="{{ URL::action($foundry_class.'@create') }}">Create</a>
 
 @if ( count($resources) > 0 )
 
