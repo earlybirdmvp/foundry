@@ -109,6 +109,7 @@ class Foundry extends \Eloquent
 			}
 
 			$col = new \stdClass();
+			$col->label = str_replace(['_id', '_'], ['', ' '], $raw->Field);
 			//$col->label    = ( $raw->getComment() ? $raw->getComment() : NULL );
 			$col->is_email = ( str_contains($type, 'varchar') && str_contains($raw->Field, 'email') );
 			$col->relationship = camel_case(str_replace('_id', '', $raw->Field));
@@ -142,6 +143,11 @@ class Foundry extends \Eloquent
 
 		$columns = array_diff_key($this->getColumns(),
 			array_flip($this->hidden), array_flip($this->guarded), array_flip($this->getDates()));
+
+		if( count($this->visible) > 0 )
+		{
+			$columns = array_intersect_key($columns, array_flip($this->visible));
+		}
 
 		return $columns;
 	}

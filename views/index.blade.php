@@ -1,4 +1,4 @@
-<a class="btn btn-default" href="{{ URL::action($foundry_class.'@create') }}">Create</a>
+<a class="btn btn-default" href="{{ URL::action($routes['create']) }}">Create</a>
 
 @if ( count($resources) > 0 )
 
@@ -19,7 +19,7 @@
 	@if ( $resource->$name !== NULL )
 
 		@if ( $column->primary || $column->unique )
-			<td><a href="{{ URL::action($foundry_class.'@edit', $resource->id) }}">{{ $resource->$name }}</a></td>
+			<td><a href="{{ URL::action($routes['edit'], $resource->id) }}">{{ $resource->$name }}</a></td>
 		@elseif ( $relations[$name] )
 			<td>
 			<?php $rel = $column->relationship; ?>

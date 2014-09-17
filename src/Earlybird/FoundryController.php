@@ -11,6 +11,13 @@ class FoundryController extends \BaseController
 	protected $model;
 
 	/**
+	 * Routes that can be specified explicitly
+	 *
+	 * @var array
+	 */
+	public $routes;
+
+	/**
 	 * Number to show per page
 	 *
 	 * @var int
@@ -84,7 +91,8 @@ class FoundryController extends \BaseController
 		return \View::make($template)
 			->with('resources', $resources)
 			->with('columns', $columns)
-			->with('relations', $relations);
+			->with('relations', $relations)
+			->with('routes', $this->getRoutes());
 	}
 
 	/**
@@ -157,19 +165,25 @@ class FoundryController extends \BaseController
 		return \View::make($template)
 			->with('resource', $resource)
 			->with('columns', $resource->getVisibleColumns())
-			->with('relations', $relations);
+			->with('relations', $relations)
+			->with('routes', $this->getRoutes());;
 	}
 
 	/**
 	 * Store resource
 	 */
-	public function store()
+	public function store( $resource = NULL )
 	{
 		$model = $this->getModel();
 		$id = \Input::get('id');
 
+		$routes = $this->getRoutes();
+
 		// Determine if editing or creating
-		if( $id )
+		if( is_object($resource) )
+		{
+		}
+		else if( $id )
 		{
 			$resource = $model::findOrFail($id);
 		}
@@ -184,12 +198,12 @@ class FoundryController extends \BaseController
 		if( $validator->fails() )
 		{
 			if( $id ) {
-				return \Redirect::action(get_called_class().'@edit', ['id' => $id])
+				return \Redirect::action($routes['edit'], ['id' => $id])
 					->withErrors($validator)
 					->withInput();
 			}
 			else {
-				return \Redirect::action(get_called_class().'@create')
+				return \Redirect::action($routes['create'])
 					->withErrors($validator)
 					->withInput();
 			}
@@ -207,9 +221,9 @@ class FoundryController extends \BaseController
 					{
 						$value = $value['year'].'-'.$value['month'].'-'.$value['day'];
 					}
-					else if( $column->type == 'password' )
+					else if( $column->type == 'password' && $value )
 					{
-						$value = Hash::make('value');
+						$value = Hash::make($value);
 					}
 
 					$resource->$name = $value;
@@ -273,7 +287,7 @@ class FoundryController extends \BaseController
 
 			$resource->save();
 
-			return \Redirect::action(get_called_class().'@index');
+			return \Redirect::action($routes['index']);
 		}
 	}
 
@@ -303,6 +317,25 @@ class FoundryController extends \BaseController
 		return \View::make($template)
 			->with('resource', $resource)
 			->with('columns', $resource->getVisibleColumns());
+	}
+
+	/**
+	 * Get routes
+	 */
+	public function getRoutes()
+	{
+		$actions = array(
+			'index', 'create', 'store', 'show', 'edit', 'update', 'destroy'
+		);
+
+		$routes = array();
+		foreach( $actions as $action ) {
+			$routes[$action] = isset($this->routes[$action]) ?
+				$this->routes[$action] :
+				get_class($this).'@'.$action;
+		}
+
+		return $routes;
 	}
 
 }

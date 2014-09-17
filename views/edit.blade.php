@@ -1,8 +1,8 @@
-<a class="btn btn-default" href="{{ URL::action($foundry_class.'@index') }}">View All</a>
+<a class="btn btn-default" href="{{ URL::action($routes['index']) }}">View All</a>
 
 @if ( count($columns) > 0 )
 
-<form class="form-horizontal" method="post" action="{{ URL::action($foundry_class.'@store') }}" enctype="multipart/form-data">
+<form class="form-horizontal" method="post" action="{{ URL::action($routes['store']) }}" enctype="multipart/form-data">
 <div>
 
 @foreach ( $columns as $name => $column )
