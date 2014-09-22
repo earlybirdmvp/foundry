@@ -192,7 +192,7 @@ class Foundry extends \Eloquent
 	public function getRules()
 	{
 		// Generate default validator rules
-		foreach( $this->getColumns() as $name => $column )
+		foreach( $this->getEditableColumns() as $name => $column )
 		{
 			if( ! $column->primary )
 			{

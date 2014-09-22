@@ -228,9 +228,11 @@ class FoundryController extends \BaseController
 
 					$resource->$name = $value;
 				}
-				else if( \Input::hasFile($name) )
+				else if( $column->type == 'file' )
 				{
-					if( $column->type == 'file' )
+					$value = NULL;
+
+					if( \Input::hasFile($name) )
 					{
 						$file = \Input::file($name);
 
