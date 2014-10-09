@@ -166,7 +166,7 @@ class FoundryController extends \BaseController
 			->with('resource', $resource)
 			->with('columns', $resource->getVisibleColumns())
 			->with('relations', $relations)
-			->with('routes', $this->getRoutes());;
+			->with('routes', $this->getRoutes());
 	}
 
 	/**
@@ -320,7 +320,8 @@ class FoundryController extends \BaseController
 
 		return \View::make($template)
 			->with('resource', $resource)
-			->with('columns', $resource->getVisibleColumns());
+			->with('columns', $resource->getVisibleColumns())
+			->with('routes', $this->getRoutes());
 	}
 
 	/**
