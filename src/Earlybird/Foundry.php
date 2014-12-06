@@ -1,6 +1,6 @@
 <?php namespace Earlybird;
 
-class Foundry extends \Eloquent
+trait Foundry
 {
 
 	/**

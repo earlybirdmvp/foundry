@@ -107,6 +107,10 @@
 
 @endforeach
 
+@if ( $custom )
+	@include ($custom)
+@endif
+
 <div class="form-group">
 	<div class="col-sm-offset-2 col-sm-5">
 		<input type="submit" value="Save {{ $foundry_model }}" class="btn btn-primary">
