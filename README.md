@@ -18,16 +18,20 @@ View::addNamespace('foundry', base_path().'/vendor/earlybirdmvp/foundry/views');
 
 ## Getting Started
 
-First create your Foundry model. (Foundry extends Eloquent) 
+First create your Foundry model. 
 
 ```php
-class Product extends Earlybird\Foundry { }
+class Product extends Eloquent {
+    use Earlybird\Foundry;
+}
 ```
 
 Then create a Controller:
 
 ```php
-class ProductController extends Earlybird\FoundryController { }
+class ProductController extends BaseController {
+    use Earlybird\FoundryController;
+}
 ```
 
 Finally add a Route resource group. See http://laravel.com/docs/controllers#resource-controllers
@@ -59,10 +63,12 @@ bigint, char, date, decimal, enum, int, text, tinyint, varchar
 * Default validation rules can be overridden inside the Model
 
 ```php
-class Product extends Earlybird\Foundry {
-  protected $rules = array(
-    'name' => 'min:8'
-  );
+class Product extends Eloquent {
+    use Earlybird\Foundry;
+
+    protected $rules = array(
+        'name' => 'min:8'
+    );
 }
 ```
 -->
@@ -70,23 +76,27 @@ class Product extends Earlybird\Foundry {
 * Very basic `belongsTo` relationships are supported. The column must end in `_id` and must have the same prefix as the name of the relationship. For example, if the `products` table has a `category_id` column, and this Eloquent relationship then it will work:
 
 ```php
-class Product extends Earlybird\Foundry {
-  public function category() {
-    return $this->belongsTo('Category');
-  }
+class Product extends Eloquent {
+    use Earlybird\Foundry;
+
+    public function category() {
+        return $this->belongsTo('Category');
+    }
 }
 ``` 
 
 * These `belongsTo` relationships are shown as select dropdowns where the value is the `id` and the option text is the `name` attribute. If the table does not have a `name` column, or you wish to change what is displayed, you can use `$appends`:
 
 ```php
-class Product extends Earlybird\Foundry {
-  protected $appends = array(
-    'foundry_value',
-  );
-  public function getFoundryValueAttribute() {
-    return $this->sku . ':  ' . $this->name;
-  }
+class Product extends Eloquent {
+    use Earlybird\Foundry;
+
+    protected $appends = array(
+        'foundry_value',
+    );
+    public function getFoundryValueAttribute() {
+        return $this->sku . ':  ' . $this->name;
+    }
 }
 ```
 
@@ -99,10 +109,12 @@ class Product extends Earlybird\Foundry {
 * If you wish to detect updates, create a `detectChange` function. This is called before `save()` so that you can compare the old and new values
 
 ```php
-class OrderController extends Earlybird\FoundryController {
-  public function detectChange() {
-    // Email customer update that order status was changed
-  }
+class OrderController extends BaseController {
+    use Earlybird\FoundryController;
+
+    public function detectChange() {
+        // Email customer update that order status was changed
+    }
 }
 ```
 
